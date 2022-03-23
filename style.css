@@ -9,9 +9,18 @@
     width:100%;
     background-color: #222f3e;
     display: flex;
-    
-    /* justify-content: center; */
-} 
+    animation-name: scale-tools;
+    animation-duration: 2s;
+}
+@keyframes scale-tools {
+    0%{
+        transform: scale(0.1);
+    }
+    100%{
+        transform: scale(1);
+    }
+}
+ 
 .color-cont{
     background-color: #576574;
     width: 20rem;
@@ -86,6 +95,8 @@
     width:50vw;
     top:calc(50% - 60vh/2);
     display: none;
+    animation-name: scale-tools;
+    animation-duration: 0.5s;
 }
 .modal-text{
     /* background-color: #ff6b6b; */
@@ -127,6 +138,8 @@ textarea{
     background-color: #f1f2f6;
     color:black;
     margin:1rem;
+    animation-name: scale-tools;
+    animation-duration: 0.5s;
     /* border: 2px red solid; */
 }
 .ticket-color{
