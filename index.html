@@ -1,54 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JIRA TICKET MANAGEMENT APP</title>
-    <link rel="icon" href="jira.png">
+    <title>Jira Ticket Management App</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="style.css">
-</head>
+    <script src="https://unpkg.com/shortid-dist@1.0.5/dist/shortid-2.2.13.min.js"></script>
+    <link rel="shortcut icon" href="jira.png" type="image/x-icon">
+</head> 
 <body>
-    <div class="tool-cont">
-        <div class="color-cont">
-            <div class="color1 colors" color="rgb(255, 107, 107)"></div>
-            <div class="color2 colors" color="rgb(16, 172, 132)"></div>
-            <div class="color3 colors" color="rgb(30, 144, 255)"></div>
-            <div class="color4 colors" color="rgb(255, 159, 67)"></div>
+    <!--ToolBar -->
+    <div class="toolbar">
+        <div class="ticketColors">
+            <div class="colors red"></div>
+            <div class="colors aqua"></div>
+            <div class="colors teal"></div>
+            <div class="colors burlywood"></div>
         </div>
-        <div class="add-del">
-            <div class="add">
-                <i class="material-icons">add</i>
-            </div>
-            <div class="del">
-                <i class="material-icons">close</i>
-            </div>
+
+
+        <div class="addDelCont">
+            <button class="add material-icons">add</button>
+            <button class="del material-icons">close</button>
         </div>
-    </div> 
-    <div class="main-cont">
     </div>
-    <div class="modal-cont">
-        <div class="modal-text">
-            <textarea class="textarea" placeholder="Press CTRL+Enter key to Generate a ticket"></textarea>
+
+
+    <!-- Modal -->
+    <div class="ticketCont"></div>
+        <div class="ticketCreator">
+            <div class="textAreaButton">
+                <textarea class="textArea" placeholder="Press CTRL + ENTER to Generate the ticket"></textarea>
+                <button class="generateBtn">Generate Ticket</button>
+            </div>
+            
+            <div class="creatorColorCont">
+            <div class="creatorColors red borderTicket"></div>
+            <div class="creatorColors aqua"></div>
+            <div class="creatorColors teal"></div>
+            <div class="creatorColors burlywood"></div>
+            </div>
         </div>
-        <div class="modal-color">
-            <div class="mc modal-color1" color="rgb(255, 107, 107)"></div>
-            <div class="mc modal-color2" color="rgb(16, 172, 132)" ></div>
-            <div class="mc modal-color3" color="rgb(30, 144, 255)" ></div>
-            <div class="mc modal-color4" color="rgb(255, 159, 67)"></div>
-        </div>
-    </div>   
-<template class="temp">
-    <div class="ticket">
-    <div class="ticket-color"></div>
-    <div class="unique-id"></div>
-    <div class="ticket-text"></div>
-    <div class="lock"> <i class="lock-icon material-icons">lock</i>
-    </div>
-</div>
-</template>
-<script src="https://unpkg.com/shortid-dist@1.0.5/dist/shortid-2.2.13.min.js"></script>
+   
 <script src="script.js"></script>
 </body>
 </html>
