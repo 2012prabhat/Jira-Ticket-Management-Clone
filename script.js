@@ -1,175 +1,189 @@
-let modal = document.querySelector(".modal-cont");
-let add = document.querySelector(".add");
-let del = document.querySelector(".del");
-let textarea = document.querySelector(".textarea");
-let mainCont = document.querySelector(".main-cont");
-let temp = document.querySelector(".temp");
-let modalColors = document.querySelectorAll(".mc");
-let colors = document.querySelectorAll(".colors");
-let col = "rgb(255, 107, 107)";
-let removeFlag = false;
-let ticketsArr = [];
-add.addEventListener("click",handleAdd);
-del.addEventListener("click",(e)=>{
-    removeFlag = !removeFlag;
-    del.style.backgroundColor = (del.style.backgroundColor)=="red"?"#576574":"red";
-});
+const ticketCreator= document.querySelector(".ticketCreator");
+const add= document.querySelector(".add");
+const del= document.querySelector(".del");
+const creatorColors = document.querySelectorAll(".creatorColors")
+const textArea = document.querySelector(".textArea")
+const ticketCont = document.querySelector(".ticketCont")
+const colors = document.querySelectorAll(".colors")
+const generateBtn = document.querySelector(".generateBtn")
 
-
-//load from local storage
-if(localStorage.getItem("jira_tickets")){
-    ticketsArr = JSON.parse(localStorage.getItem("jira_tickets"));
-    for(let i=0;i<ticketsArr.length;i++){
-        createTicket(ticketsArr[i].tickColor,ticketsArr[i].tickId,ticketsArr[i].tickText);
-    }
+let ls = [];
+function saveToLocalStorage(text,selectedTicketColor,id){
+    ls.push({
+        text:text,
+        selectedTicketColor:selectedTicketColor,
+        id:id,
+    })
+    localStorage.setItem("jira",JSON.stringify(ls));
 }
-// to set the color of ticket
-for(let i=0;i<modalColors.length;i++){
-modalColors[i].addEventListener("click",()=>{
-    col = modalColors[i].getAttribute("color");
-    modalColors[i].style.border = "6px solid white";
-    for(let j=0;j<modalColors.length;j++){
-        if(j!=i){
-            modalColors[j].style.border = "none";
+let addFlag = false;
+
+
+let selectedTicketColor = 'red';
+add.addEventListener('click',()=>{
+    if(addFlag==false){
+        ticketCreator.style.display = "flex";
+        addFlag = !addFlag
+    }else{
+        ticketCreator.style.display = "none";
+        addFlag = !addFlag
+    }
+    creatorColors[0].classList.add("borderTicket");
+})
+for(let i=0;i<creatorColors.length;i++){
+    creatorColors[i].addEventListener('click',()=>{
+    selectedTicketColor = creatorColors[i].getAttribute('class').split(" ")[1]
+    creatorColors[i].classList.add("borderTicket");
+    for(let j=0;j<creatorColors.length;j++){
+        if(i==j){
+
+        }else{
+            creatorColors[j].classList.remove("borderTicket");
         }
+    }
+    })
+ }
+
+ let deleteFlag = false;
+ del.addEventListener("click",()=>{
+    if(deleteFlag==false){
+        deleteFlag = !deleteFlag;
+        del.style.backgroundColor = "red";
+    }else{
+        deleteFlag = !deleteFlag;
+        del.style.backgroundColor = "white";
+    }
+ })
+ticketCreator.addEventListener('keydown',(e)=>{
+    if( e.key == "Enter" && e.ctrlKey){
+       let text = textArea.value;
+       if(text=="") return;
+        let id = shortid();
+        addTickets(text,selectedTicketColor,id);
+        saveToLocalStorage(text,selectedTicketColor,id);
+        addFlag = !addFlag
+        for(let i=0;i<creatorColors.length;i++){
+            creatorColors[i].classList.remove("borderTicket");
+        }
+        selectedTicketColor = 'red';
+    }
+})
+generateBtn.addEventListener('click',()=>{
+    let text = textArea.value;
+    if(text=="") return;
+    let id = shortid();
+    addTickets(text,selectedTicketColor,id);
+    saveToLocalStorage(text,selectedTicketColor,id);
+    addFlag = !addFlag
+    for(let i=0;i<creatorColors.length;i++){
+        creatorColors[i].classList.remove("borderTicket");
+    }
+    selectedTicketColor = 'red';
+})
+
+const addTickets = (text,selectedTicketColor,uniqueid)=>{
+    let newTicket = document.createElement('div');
+     newTicket.innerHTML = `<div class="ticket">
+    <div class="ticketColor ${selectedTicketColor}"></div>
+    <div class="ticketid">${uniqueid}</div>
+    <div class="contentLock">
+    <div class="ticketContent">${text}</div>
+    <div class="material-icons lock">lock</div>
+    </div>
+    
+</div>`;
+ticketCont.append(newTicket);
+textArea.value = "";
+ticketCreator.style.display = "none";
+let ticketColor = newTicket.querySelector(".ticketColor");
+let ticketContent = newTicket.querySelector(".ticketContent");
+let ticketid = newTicket.querySelector(".ticketid");
+let lock = newTicket.querySelector(".lock");
+
+// to change ticket color
+ticketColor.addEventListener("click",()=>{
+    ticketColor.classList.remove(selectedTicketColor);
+    let ticketColorsArr = ['red','aqua','teal','burlywood'];
+      let colorIdx = ticketColorsArr.findIndex(f=>f==selectedTicketColor);
+      selectedColorIdx = colorIdx==3?0:colorIdx+1;
+      selectedTicketColor = ticketColorsArr[selectedColorIdx];
+      ticketColor.classList.add(selectedTicketColor);
+      let lsid = ls.find(f=>ticketid.innerHTML==f.id);
+      lsid.selectedTicketColor = selectedTicketColor;
+      localStorage.setItem("jira",JSON.stringify(ls));  
+})
+
+// to delete tickets
+newTicket.addEventListener('click',()=>{
+    if(deleteFlag){
+        newTicket.remove();
+        ls = ls.filter(m=>m.id!=ticketid.innerHTML);
+        localStorage.setItem("jira",JSON.stringify(ls)); 
+    }
+  })
+
+lock.addEventListener("click",()=>{
+    if(lock.innerHTML=="lock"){
+        lock.innerHTML = "lock_open";
+        ticketContent.setAttribute("contenteditable",true);
+    }else{
+        lock.innerHTML = "lock";
+        ticketContent.setAttribute("contenteditable",false);
+        let ticketidfromls = ls.find(f=>f.id == uniqueid);
+        ticketidfromls.text = ticketContent.innerHTML
+        localStorage.setItem("jira",JSON.stringify(ls));
+
+
     }
 })
 }
 
-// to filter according to color
+
+//to filter tickets
+let filterColor = null;
 for(let i=0;i<colors.length;i++){
-    colors[i].addEventListener("click",function(){
-        let colorsName = colors[i].getAttribute("color");
-        let filteredTick = ticketsArr.filter((ticketObj,idx)=>{
-            return colorsName === ticketObj.tickColor;
+    colors[i].addEventListener('click',()=>{
+    colors[i].classList.add("borderTicket");
+    filterColor = colors[i].getAttribute("class").split(" ")[1];
+    for(let j=0;j<colors.length;j++){
+        if(i==j){
+        }else{
+            colors[j].classList.remove("borderTicket"); 
+        }
+    }
+    filteredTickets(filterColor);
+    ticketCreator.style.display = "none";
+    addFlag = false;
+    })
+    
+
+
+}
+
+for(let i=0;i<colors.length;i++){
+    colors[i].addEventListener('dblclick',()=>{
+        for(let j=0;j<colors.length;j++){           
+                colors[j].classList.remove("borderTicket")
+        }
+        ticketCont.innerHTML = "";
+        ls.forEach(e=>{
+            addTickets(e.text,e.selectedTicketColor,e.id)
         })
-        // remove previous tickets
-        let allTickets = document.querySelectorAll(".ticket");
-        for(let i=0;i<allTickets.length;i++){
-            allTickets[i].remove();
-        }
-
-        //show according to color
-        for(let i=0;i<filteredTick.length;i++){
-            createTicket(filteredTick[i].tickColor,filteredTick[i].tickId,filteredTick[i].tickText);
-        }
-        colors[i].style.border = "5px solid white";
-        for(let j=0;j<colors.length;j++){
-            if(i!=j){
-                colors[j].style.border = "none";
-            }
-        }
-    })
-    colors[i].addEventListener("dblclick",function(){
-        let allTickets = document.querySelectorAll(".ticket");
-        colors[i].style.border = "none";
-        for(let i=0;i<allTickets.length;i++){
-            allTickets[i].remove();
-        }
-        for(let i=0;i<ticketsArr.length;i++){
-            createTicket(ticketsArr[i].tickColor,ticketsArr[i].tickId,ticketsArr[i].tickText);
-        }
-
+        
     })
 }
-
-function createTicket(tickColor,tickId,tickText,){
-    let  node =  temp.content.querySelector(".ticket");
-    let ticket = node.cloneNode(true);
-    let ticketText = ticket.querySelector(".ticket-text");
-    let ticketColor = ticket.querySelector(".ticket-color");
-    let ticketId = ticket.querySelector(".unique-id");
-    ticketText.innerHTML = tickText;
-    ticketColor.style.backgroundColor = tickColor;
-    let id = tickId || shortid();
-    ticketId.innerHTML = id;
-    mainCont.appendChild(ticket);
-    handleDel(ticket,id);
-    handleLock(ticket,id);
-    handleColor(ticket,id);
-    if(!tickId) {
-        ticketsArr.push({tickColor,tickId:id,tickText});
-        localStorage.setItem("jira_tickets",JSON.stringify(ticketsArr));
-    }
-}
-function handleAdd(){
-    add.style.backgroundColor = (add.style.backgroundColor)=="green"?"#576574":"green";
-    if(del.style.backgroundColor == "red"){
-        del.style.backgroundColor = "#576574";
-        removeFlag = !removeFlag;
-    }
-    modal.style.display = modal.style.display=="flex"?"none":"flex";
-    document.addEventListener("keydown",function(event){
-        if(event.key=="Enter" &&  event.ctrlKey){
-          let uniqueId;
-          if(textarea.value.trim()=="") return;
-           createTicket(col,uniqueId,textarea.value);
-           textarea.value = "";
-           modal.style.display = "none";
-           add.style.backgroundColor = (add.style.backgroundColor)=="green"?"#576574":"green";
-        }else if(event.key === "Escape"){
-            modal.style.display = "none";
-            textarea.value = "";
-            add.style.backgroundColor = "#576574"
-
-            
-        }
-    });
-}
-
-function handleDel(ticket,id){
-    ticket.addEventListener("click", (e) => {
-        if (!removeFlag) return;
-        let idx = getTikcetIdx(id);
-        ticketsArr.splice(idx,1); // local storage removal
-        localStorage.setItem("jira_tickets",JSON.stringify(ticketsArr));
-        ticket.remove(); // ui removal
-
-})
-}
-
-
-function getTikcetIdx(id) {
-    let ticketIdx = ticketsArr.findIndex((ticketObj) => {
-        return ticketObj.tickId === id;
-    })
-    return ticketIdx;
-}
-
-
-function handleLock(ticket,id){
-    let lock = ticket.querySelector(".lock");
-    let ticketText = ticket.querySelector(".ticket-text");
-    let lockFlag = true;
-    lock.addEventListener("click",()=>{
-       let lockIcon = lock.querySelector(".lock-icon");
-       let ticketIdx = getTikcetIdx(id);
-       if(lockFlag==true){
-           lockIcon.innerHTML = "lock_open";
-           lockFlag = false;
-           ticketText.setAttribute("contenteditable",true);
-       }else{
-        lockIcon.innerHTML = "lock";
-        lockFlag = true;
-        ticketText.setAttribute("contenteditable",false);
-       }
-    //    alert(ticketIdx);
-       ticketsArr[ticketIdx].tickText = ticketText.innerText; 
-       localStorage.setItem("jira_tickets",JSON.stringify(ticketsArr));
-
-    });
-
-}
-tickColorArr = ["rgb(255, 107, 107)","rgb(16, 172, 132)","rgb(30, 144, 255)","rgb(255, 159, 67)"];
-function handleColor(ticket,id){
-    let tickColor = ticket.querySelector(".ticket-color");
-    let ticketIdx = getTikcetIdx(id);
-    let color = 0;
-    if(tickColor.style.backgroundColor =="rgb(255, 107, 107)") color = 1;
-    tickColor.addEventListener("click",()=>{
-        tickColor.style.backgroundColor = tickColorArr[color%4];
-        color++;
-        ticketsArr[ticketIdx].tickColor = tickColor.style.backgroundColor; 
-        localStorage.setItem("jira_tickets",JSON.stringify(ticketsArr))
+function filteredTickets(filterColor){
+    ticketCont.innerHTML = "";
+    let filterArr = ls.filter(f=>f.selectedTicketColor==filterColor);
+    filterArr.forEach(e=>{
+        addTickets(e.text,e.selectedTicketColor,e.id)
     })
 }
+function loadFromStorage(){
+    let data = JSON.parse(localStorage.getItem('jira'));
+    data.forEach(elem=>{
+        ls.push(elem);
+        addTickets(elem.text,elem.selectedTicketColor,elem.id);
+    })
+}
+loadFromStorage();
